@@ -1,12 +1,21 @@
 {
-  "name": "student-mvc-sequeliz-express-api",
+  "name": "forag-api",
   "version": "1.0.0",
-  "description": "student management api",
+  "description": "backend of the survey and voting application",
   "main": "./src/app.js",
-  "author": "Randy Muhema",
+  "author": "Randy-Assani-Beni-Muhema",
   "license": "MIT",
+  "keywords": [
+    "survey application",
+    "voting application",
+    "backend survey application api",
+    "backend voting application api"
+  ],
   "scripts": {
-    "start": "nodemon"
+    "start": "nodemon",
+    "test": "jest --coverage",
+    "eslint": "eslint . --fix",
+    "prepare": "husky install"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -21,6 +30,14 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.7",
-    "sequelize-cli": "^6.2.0"
+    "sequelize-cli": "^6.2.0",
+    "eslint": "^8.0.1",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^7.0.0",
+    "jest": "^27.3.1",
+    "prettier": "^2.4.1"
   }
 }

@@ -15,7 +15,12 @@
         "prettier"
     ],
     "rules": {
-        "prettier/prettier": "error",
+        "prettier/prettier": [
+            "error",
+            {
+                "endOfLine": "auto"
+            }
+        ],
         "no-console": "off",
         "object-shorthand": "off",
         "no-return-await": "off",
@@ -30,7 +35,8 @@
         "no-underscore-dangle": "off",
         "quotes": [
             "error",
-            "double"
-        ]
+            "single"
+        ],
+        "linebreak-style": "off"
     }
 }

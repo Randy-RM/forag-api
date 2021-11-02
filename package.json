@@ -15,7 +15,7 @@
     "start": "nodemon",
     "test": "jest --coverage",
     "prettier": "prettier --ignore-path .gitignore --write \"**/*.+(js|jsx|ts|tsx|json|css|html)\"",
-    "format": "yarn prettier --write",
+    "format": "yarn prettier --write .",
     "check-format": "yarn prettier --list-different",
     "eslint": "eslint . --fix",
     "lint": "eslint --ignore-path .gitignore --ext .js,.jsx,.ts,.tsx .",

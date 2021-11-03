@@ -1,6 +1,6 @@
-function isOnlyEmptyCharacters(string) {
-  string = toString(string);
-  if (!string.replace(/\s+/, "").length) {
+function isOnlyEmptyCharacters(stringInput) {
+  stringInput = toString(stringInput);
+  if (!stringInput.replace(/\s+/, '').length) {
     return true;
   }
   return false;

@@ -1,8 +1,8 @@
-const { validationResult } = require("express-validator");
-const { User, Role, UserRole, sequelize } = require("../models");
-const authConfig = require("../config/auth.config");
-let jwt = require("jsonwebtoken");
-let bcrypt = require("bcryptjs");
+const { validationResult } = require('express-validator');
+const { User, Role, UserRole, sequelize } = require('../models');
+const authConfig = require('../config/authConfig');
+let jwt = require('jsonwebtoken');
+let bcrypt = require('bcryptjs');
 
 /*
 --------------------------
@@ -42,14 +42,14 @@ async function signup(req, res, next) {
             { transaction }
           );
         } else {
-          throw new Error("problems arising from the roles");
+          throw new Error('problems arising from the roles');
         }
       }
     } else {
       // Save default relationship userRole for User, if relationship is not specified
       await UserRole.create(
         {
-          roleId: Role.findOne({ where: { roleName: "user" } }).id,
+          roleId: Role.findOne({ where: { roleName: 'user' } }).id,
           userId: user.id,
         },
         { transaction }
@@ -57,7 +57,7 @@ async function signup(req, res, next) {
     }
     // Persist entities if transaction is successful
     await transaction.commit().then(() => {
-      res.status(201).send({ message: "User was registered successfully!" });
+      res.status(201).send({ message: 'User was registered successfully!' });
     });
   } catch (error) {
     // Rollback transaction if is not successful
@@ -81,18 +81,15 @@ async function signin(req, res, next) {
   })
     .then(async (user) => {
       if (!user) {
-        return res.status(404).send({ message: "User Not found." });
+        return res.status(404).send({ message: 'User Not found.' });
       }
 
-      let passwordIsValid = bcrypt.compareSync(
-        req.body.password,
-        user.password
-      );
+      let passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
 
       if (!passwordIsValid) {
         return res.status(401).send({
           accessToken: null,
-          message: "Invalid Password!",
+          message: 'Invalid Password!',
         });
       }
 

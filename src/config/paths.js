@@ -1,6 +1,6 @@
 const paths = {
   authBaseURI: '/api/auth',
-  usersBaseURI: '/api/user',
+  userBaseURI: '/api/user',
 };
 
 module.exports = paths;

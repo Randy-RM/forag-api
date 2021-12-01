@@ -1,5 +1,5 @@
 const secretKey = {
-  secret: 'forage-secret-key-for-auth-api',
+  secret: 'forag-secret-key-for-auth-api',
 };
 
 module.exports = secretKey;

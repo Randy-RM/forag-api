@@ -1,8 +1,8 @@
 const { validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const { User, Role, UserRole, sequelize } = require('../models');
 const authConfig = require('../config/authConfig');
-let jwt = require('jsonwebtoken');
-let bcrypt = require('bcryptjs');
 
 /*
 --------------------------
@@ -11,7 +11,7 @@ in the database
 --------------------------
 */
 async function signup(req, res, next) {
-  const errors = await validationResult(req);
+  const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).send({ errors: errors.array() });
   }
@@ -30,7 +30,7 @@ async function signup(req, res, next) {
     if (req.body.roles && req.body.roles.length > 0) {
       // Save relationship userRole for user if is specified
       for (const role of req.body.roles) {
-        let currentRole = await Role.findOne({
+        const currentRole = await Role.findOne({
           where: { roleName: role },
         });
         if (currentRole) {
@@ -84,7 +84,7 @@ async function signin(req, res, next) {
         return res.status(404).send({ message: 'User Not found.' });
       }
 
-      let passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
+      const passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
 
       if (!passwordIsValid) {
         return res.status(401).send({
@@ -93,11 +93,11 @@ async function signin(req, res, next) {
         });
       }
 
-      let token = jwt.sign({ id: user.id }, authConfig.secret, {
+      const token = jwt.sign({ id: user.id }, authConfig.secret, {
         expiresIn: 86400, // 24 hours
       });
 
-      let authorities = [];
+      const authorities = [];
 
       const userRoles = await UserRole.findAll({
         where: {
@@ -106,7 +106,7 @@ async function signin(req, res, next) {
       });
 
       for (const userRole of userRoles) {
-        let role = await Role.findByPk(userRole.roleId);
+        const role = await Role.findByPk(userRole.roleId);
         authorities.push(role.roleName);
       }
 

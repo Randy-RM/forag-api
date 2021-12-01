@@ -9,7 +9,7 @@ if client is authorized
 --------------------------
 */
 function verifyToken(req, res, next) {
-  let token = req.headers['x-access-token'];
+  const token = req.headers['x-access-token'];
 
   if (!token) {
     return res.status(403).send({
@@ -25,10 +25,7 @@ function verifyToken(req, res, next) {
     }
     req.userId = decoded.id;
     next();
-    return;
   });
-
-  return;
 }
 
 /*
@@ -38,27 +35,21 @@ administrator rights
 --------------------------
 */
 async function isAdmin(req, res, next) {
-  await User.findByPk(req.userId).then(async (user) => {
-    const userRoles = await UserRole.findAll({
-      where: {
-        userId: user.id,
-      },
-    });
-
-    for (const userRole of userRoles) {
-      let role = await Role.findByPk(userRole.roleId);
-      if (role.roleName === 'admin') {
-        next();
-        return;
-      }
-    }
-
-    return res.status(403).send({
-      message: 'Require admin role!',
-    });
+  const user = await User.findByPk(req.userId);
+  const userRoles = await UserRole.findAll({
+    where: {
+      userId: user.id,
+    },
   });
-
-  return;
+  for (const userRole of userRoles) {
+    const role = await Role.findByPk(userRole.roleId);
+    if (role.roleName === 'admin') {
+      next();
+    }
+  }
+  return res.status(403).send({
+    message: 'Require admin role!',
+  });
 }
 
 /*
@@ -68,27 +59,21 @@ organization rights
 --------------------------
 */
 async function isOrganization(req, res, next) {
-  await User.findByPk(req.userId).then(async (user) => {
-    const userRoles = await UserRole.findAll({
-      where: {
-        userId: user.id,
-      },
-    });
-
-    for (const userRole of userRoles) {
-      let role = await Role.findByPk(userRole.roleId);
-      if (role.roleName === 'organization' || 'admin') {
-        next();
-        return;
-      }
-    }
-
-    return res.status(403).send({
-      message: 'Require organization role or admin !',
-    });
+  const user = await User.findByPk(req.userId);
+  const userRoles = await UserRole.findAll({
+    where: {
+      userId: user.id,
+    },
   });
-
-  return;
+  for (const userRole of userRoles) {
+    const role = await Role.findByPk(userRole.roleId);
+    if (role.roleName === 'organization' || 'admin') {
+      next();
+    }
+  }
+  return res.status(403).send({
+    message: 'Require organization role or admin !',
+  });
 }
 
 /*
@@ -98,32 +83,26 @@ user rights
 --------------------------
 */
 async function isUser(req, res, next) {
-  await User.findByPk(req.userId).then(async (user) => {
-    const userRoles = await UserRole.findAll({
-      where: {
-        userId: user.id,
-      },
-    });
-
-    for (const userRole of userRoles) {
-      let role = await Role.findByPk(userRole.roleId);
-      if (role.roleName === 'user' || 'organization' || 'admin') {
-        next();
-        return;
-      }
-    }
-
-    return res.status(403).send({
-      message: 'Require user role or higher !',
-    });
+  const user = await User.findByPk(req.userId);
+  const userRoles = await UserRole.findAll({
+    where: {
+      userId: user.id,
+    },
   });
-
-  return;
+  for (const userRole of userRoles) {
+    const role = await Role.findByPk(userRole.roleId);
+    if (role.roleName === 'user' || 'organization' || 'admin') {
+      next();
+    }
+  }
+  return res.status(403).send({
+    message: 'Require user role or higher !',
+  });
 }
 
 module.exports = {
-  verifyToken: verifyToken,
-  isAdmin: isAdmin,
-  isOrganization: isOrganization,
-  isUser: isUser,
+  verifyToken,
+  isAdmin,
+  isOrganization,
+  isUser,
 };

@@ -1,15 +1,15 @@
-const { param } = require("express-validator");
+const { param } = require('express-validator');
 
 function validateId(id) {
   return [
     param(id)
       .exists()
-      .withMessage("this field is require")
+      .withMessage('This field is require')
       .isInt()
-      .withMessage("this must be a number")
+      .withMessage('This must be a number')
       .not()
       .notEmpty()
-      .withMessage("this field must not be empty"),
+      .withMessage('This field must not be empty'),
   ];
 }
 

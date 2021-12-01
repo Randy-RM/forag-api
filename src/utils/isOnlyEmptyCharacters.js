@@ -1,5 +1,5 @@
-function isOnlyEmptyCharacters(stringInput) {
-  stringInput = toString(stringInput);
+function isOnlyEmptyCharacters(input) {
+  const stringInput = toString(input);
   if (!stringInput.replace(/\s+/, '').length) {
     return true;
   }

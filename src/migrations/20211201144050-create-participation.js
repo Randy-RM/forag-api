@@ -1,16 +1,29 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Roles', {
+    await queryInterface.createTable('Participations', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      roleName: {
-        type: Sequelize.STRING,
+      userId: {
+        type: Sequelize.INTEGER,
         allowNull: false,
-        unique: true,
+        references: {
+          model: 'Users',
+          key: 'id',
+          as: 'userId',
+        },
+      },
+      poolId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Pools',
+          key: 'id',
+          as: 'poolId',
+        },
       },
       createdAt: {
         allowNull: false,
@@ -23,6 +36,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Roles');
+    await queryInterface.dropTable('Participations');
   },
 };

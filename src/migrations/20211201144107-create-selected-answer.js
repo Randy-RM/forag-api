@@ -1,28 +1,28 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('UserRoles', {
+    await queryInterface.createTable('SelectedAnswers', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      roleId: {
+      choiceId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Roles',
+          model: 'Choices',
           key: 'id',
-          as: 'roleId',
+          as: 'choiceId',
         },
       },
-      userId: {
+      answerId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users',
+          model: 'Answers',
           key: 'id',
-          as: 'userId',
+          as: 'answerId',
         },
       },
       createdAt: {
@@ -36,6 +36,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('UserRoles');
+    await queryInterface.dropTable('SelectedAnswers');
   },
 };

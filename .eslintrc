@@ -28,7 +28,7 @@
     "no-unused-vars": [
       "error",
       {
-        "argsIgnorePattern": "req|res|next|val|err|token|Sequelize|sequelize"
+        "argsIgnorePattern": "req|res|next|val|err|token|Sequelize|sequelize|models"
       }
     ],
     "consistent-return": "off",

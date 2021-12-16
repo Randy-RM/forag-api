@@ -1,14 +1,18 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Pools', {
+    await queryInterface.createTable('Surveys', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      poolTitle: {
+      surveyTitle: {
         type: Sequelize.STRING,
+        allowNull: false,
+      },
+      isSurveyPublished: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
       },
       userId: {
@@ -31,6 +35,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Pools');
+    await queryInterface.dropTable('Surveys');
   },
 };

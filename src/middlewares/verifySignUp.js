@@ -13,7 +13,7 @@ async function checkDuplicateUsernameOrEmail(req, res, next) {
   const user = await User.findOne({
     where: { [Op.or]: [{ username: req.body.username }, { email: req.body.email }] },
   });
-  // Username and Email
+  // Check username and Email
   if (user) {
     if (user.username === req.body.username) {
       return res.status(422).send({
@@ -49,9 +49,7 @@ async function checkRolesExisted(req, res, next) {
   next();
 }
 
-const verifySignUp = {
+module.exports = {
   checkDuplicateUsernameOrEmail,
   checkRolesExisted,
 };
-
-module.exports = verifySignUp;

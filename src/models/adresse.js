@@ -18,15 +18,15 @@ module.exports = (sequelize, DataTypes) => {
     {
       street: {
         type: DataTypes.STRING(255),
-        allowNull: false,
+        allowNull: true,
       },
       city: {
         type: DataTypes.STRING(255),
-        allowNull: false,
+        allowNull: true,
       },
       country: {
         type: DataTypes.STRING(255),
-        allowNull: false,
+        allowNull: true,
       },
     },
     {

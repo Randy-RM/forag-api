@@ -30,26 +30,48 @@ function verifyToken(req, res, next) {
 
 /*
 --------------------------
+Check the client rights
+--------------------------
+*/
+async function isUserRights(userId, userType) {
+  if (userType === 'user' || 'organization' || 'admin') {
+    return false;
+  }
+  const userRoles = await UserRole.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+  for (const userRole of userRoles) {
+    const role = await Role.findByPk(userRole.roleId);
+    if (userType === 'admin' && role.roleName === 'admin') {
+      return true;
+    }
+    if (userType === 'organization' && (role.roleName === 'organization' || 'admin')) {
+      return true;
+    }
+    if (userType === 'user' && (role.roleName === 'user' || 'organization' || 'admin')) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/*
+--------------------------
 Check if the client has 
 administrator rights
 --------------------------
 */
 async function isAdmin(req, res, next) {
   const user = await User.findByPk(req.userId);
-  const userRoles = await UserRole.findAll({
-    where: {
-      userId: user.id,
-    },
-  });
-  for (const userRole of userRoles) {
-    const role = await Role.findByPk(userRole.roleId);
-    if (role.roleName === 'admin') {
-      next();
-    }
+  if (isUserRights(user.id, 'admin')) {
+    next();
+  } else {
+    return res.status(403).send({
+      message: 'Require admin role!',
+    });
   }
-  return res.status(403).send({
-    message: 'Require admin role!',
-  });
 }
 
 /*
@@ -60,20 +82,13 @@ organization rights
 */
 async function isOrganization(req, res, next) {
   const user = await User.findByPk(req.userId);
-  const userRoles = await UserRole.findAll({
-    where: {
-      userId: user.id,
-    },
-  });
-  for (const userRole of userRoles) {
-    const role = await Role.findByPk(userRole.roleId);
-    if (role.roleName === 'organization' || 'admin') {
-      next();
-    }
+  if (isUserRights(user.id, 'organization')) {
+    next();
+  } else {
+    return res.status(403).send({
+      message: 'Require organization role or admin !',
+    });
   }
-  return res.status(403).send({
-    message: 'Require organization role or admin !',
-  });
 }
 
 /*
@@ -84,20 +99,13 @@ user rights
 */
 async function isUser(req, res, next) {
   const user = await User.findByPk(req.userId);
-  const userRoles = await UserRole.findAll({
-    where: {
-      userId: user.id,
-    },
-  });
-  for (const userRole of userRoles) {
-    const role = await Role.findByPk(userRole.roleId);
-    if (role.roleName === 'user' || 'organization' || 'admin') {
-      next();
-    }
+  if (isUserRights(user.id, 'user')) {
+    next();
+  } else {
+    return res.status(403).send({
+      message: 'Require user role or higher !',
+    });
   }
-  return res.status(403).send({
-    message: 'Require user role or higher !',
-  });
 }
 
 module.exports = {

@@ -1,7 +1,7 @@
 const paths = {
   authBaseURI: '/api/auth',
   userBaseURI: '/api/user',
-  poolBaseURI: '/api/pool',
+  surveyBaseURI: '/api/survey',
 };
 
 module.exports = paths;

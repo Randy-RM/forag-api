@@ -15,8 +15,8 @@ module.exports = (sequelize, DataTypes) => {
       Subject.hasMany(models.Choice, {
         foreignKey: 'subjectId',
       });
-      Subject.belongsTo(models.Pool, {
-        foreignKey: 'poolId',
+      Subject.belongsTo(models.Survey, {
+        foreignKey: 'surveyId',
       });
     }
   }
@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
-      poolId: {
+      surveyId: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

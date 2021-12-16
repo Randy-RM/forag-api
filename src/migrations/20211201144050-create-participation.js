@@ -16,13 +16,13 @@ module.exports = {
           as: 'userId',
         },
       },
-      poolId: {
+      surveyId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Pools',
+          model: 'Surveys',
           key: 'id',
-          as: 'poolId',
+          as: 'surveyId',
         },
       },
       createdAt: {

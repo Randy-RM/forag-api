@@ -1,5 +1,5 @@
 const express = require('express');
-const { verifySignUp, validateInputUser } = require('../middlewares');
+const { verifySignUp, validateInputUser, validateInputAdresse } = require('../middlewares');
 const authController = require('../controllers/authController');
 
 const authRouter = express.Router();
@@ -8,6 +8,7 @@ authRouter.post(
   '/signup',
   [
     validateInputUser('username', 'email', 'password'),
+    validateInputAdresse('street', 'city', 'country'),
     verifySignUp.checkDuplicateUsernameOrEmail,
     verifySignUp.checkRolesExisted,
   ],

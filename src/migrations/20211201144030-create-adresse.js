@@ -9,12 +9,15 @@ module.exports = {
       },
       street: {
         type: Sequelize.STRING,
+        allowNull: true,
       },
       city: {
         type: Sequelize.STRING,
+        allowNull: true,
       },
       country: {
         type: Sequelize.STRING,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,

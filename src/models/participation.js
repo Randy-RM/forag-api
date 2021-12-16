@@ -15,8 +15,8 @@ module.exports = (sequelize, DataTypes) => {
       Participation.belongsTo(models.User, {
         foreignKey: 'userId',
       });
-      Participation.belongsTo(models.Pool, {
-        foreignKey: 'poolId',
+      Participation.belongsTo(models.Survey, {
+        foreignKey: 'surveyId',
       });
     }
   }
@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      poolId: {
+      surveyId: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

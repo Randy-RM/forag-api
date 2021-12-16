@@ -19,6 +19,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      isUserActive: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+      },
       adresseId: {
         type: Sequelize.INTEGER,
         allowNull: false,

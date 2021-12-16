@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { authRouter, userRouter, poolRouter } = require('./routes');
+const { authRouter, userRouter, surveyRouter } = require('./routes');
 const path = require('./config/paths');
 
 const PORT = process.env.PORT || 8000;
@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 // Router
 app.use(path.authBaseURI, authRouter);
 app.use(path.userBaseURI, userRouter);
-app.use(path.poolBaseURI, poolRouter);
+app.use(path.surveyBaseURI, surveyRouter);
 
 app.listen(PORT, () => {
   console.log(`The server listens on the port ${process.env.API_HOST}${PORT}`);

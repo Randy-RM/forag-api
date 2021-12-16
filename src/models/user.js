@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.Participation, {
         foreignKey: 'userId',
       });
-      User.hasMany(models.Pool, {
+      User.hasMany(models.Survey, {
         foreignKey: 'userId',
       });
       User.belongsTo(models.Adresse, {
@@ -36,6 +36,10 @@ module.exports = (sequelize, DataTypes) => {
       password: {
         type: DataTypes.STRING(255),
         allowNull: false,
+      },
+      isUserActive: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
       },
       adresseId: {
         type: DataTypes.INTEGER,

@@ -107,7 +107,7 @@ async function signin(req, res, next) {
     }
 
     const token = jwt.sign({ id: user.id }, authConfig.secret, {
-      expiresIn: 86400, // 24 hours
+      expiresIn: '24h', // 24 hours
     });
 
     const authorities = [];
@@ -135,7 +135,24 @@ async function signin(req, res, next) {
   }
 }
 
+/*
+--------------------------
+Logout user 
+--------------------------
+*/
+async function logout(req, res, next) {
+  const { userId } = req.body;
+  const token = jwt.sign({ id: userId }, authConfig.secret, {
+    expiresIn: '0s', // 0 hours 0 sec
+  });
+  return res.status(200).send({
+    message: 'logout successfully',
+    accessToken: token,
+  });
+}
+
 module.exports = {
   signup,
   signin,
+  logout,
 };

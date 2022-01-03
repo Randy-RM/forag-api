@@ -1,5 +1,5 @@
 const express = require('express');
-const { authJwt } = require('../middlewares/index');
+const { authJwt, validateInputSurvey, validateInputSubjectTable } = require('../middlewares/index');
 const surveyController = require('../controllers/surveyController');
 
 const surveyRouter = express.Router();
@@ -14,7 +14,16 @@ surveyRouter.get('/published', surveyController.findAllPublishedSurveys);
 
 surveyRouter.get('/user/:userId/published', surveyController.findAllUserPublishedSurveys);
 
-surveyRouter.post('/', [authJwt.verifyToken, authJwt.isUser], surveyController.createSurvey);
+surveyRouter.post(
+  '/',
+  [
+    authJwt.verifyToken,
+    authJwt.isUser,
+    validateInputSurvey('surveyTitle'),
+    validateInputSubjectTable,
+  ],
+  surveyController.createSurvey
+);
 
 surveyRouter.put(
   '/:surveyId',

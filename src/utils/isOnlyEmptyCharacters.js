@@ -1,6 +1,10 @@
 function isOnlyEmptyCharacters(input) {
-  const stringInput = toString(input);
-  if (!stringInput.replace(/\s+/, '').length) {
+  if (
+    typeof input !== 'string' ||
+    !input.replace(/\s+/, '').length ||
+    input.startsWith(' ') ||
+    input.slice(-1) === ' '
+  ) {
     return true;
   }
   return false;

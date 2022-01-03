@@ -36,11 +36,14 @@ to the database
 --------------------------
 */
 async function checkRolesExisted(req, res, next) {
+  if (req.body.roles && !Array.isArray(req.body.roles)) {
+    return res.status(400).send({ message: 'Invalid format, array of roles is expected' });
+  }
   if (req.body.roles && req.body.roles.length > 0) {
     const roles = await Role.findAll({
-      where: { roleName: { [Op.notIn]: req.body.roles } },
+      where: { roleName: { [Op.in]: req.body.roles } },
     });
-    if (roles && roles.length > 0) {
+    if (roles && roles.length !== req.body.roles.length) {
       return res.status(400).send({
         message: `Failed! some roles in array '${req.body.roles}' does not exist`,
       });

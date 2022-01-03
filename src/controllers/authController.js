@@ -33,6 +33,7 @@ async function signup(req, res, next) {
         username: req.body.username,
         email: req.body.email,
         password: bcrypt.hashSync(req.body.password, 8),
+        isUserActive: req.body.isUserActive,
         adresseId: adresse.dataValues.id,
       },
       { transaction }
@@ -70,10 +71,10 @@ async function signup(req, res, next) {
     await transaction.commit().then(() => {
       return res.status(201).send({ message: 'User was registered successfully!' });
     });
-  } catch (error) {
+  } catch (err) {
     // Rollback transaction if is not successful
     await transaction.rollback().then(() => {
-      return res.status(500).send({ error: ` ${error}` });
+      return res.status(500).send({ error: ` ${err}` });
     });
   }
 }

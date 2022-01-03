@@ -12,7 +12,11 @@ surveyRouter.get('/:surveyId', surveyController.getOneSurveyById);
 
 surveyRouter.get('/published', surveyController.findAllPublishedSurveys);
 
-surveyRouter.get('/user/:userId/published', surveyController.findAllUserPublishedSurveys);
+surveyRouter.get(
+  '/user/:userId/published',
+  [authJwt.verifyToken, authJwt.isUser, authJwt.verifyPermissionToAccessResource],
+  surveyController.findAllUserPublishedSurveys
+);
 
 surveyRouter.post(
   '/',

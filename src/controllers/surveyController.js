@@ -31,18 +31,26 @@ in the database
 --------------------------
 */
 async function findAllUserPublishedSurveys(req, res, next) {
-  const { page, size, userId } = req.query;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
+  const { page, size } = req.query;
+  const { userId } = req.params;
   const { limit, offset } = getPagination(page, size);
 
   try {
-    const survey = Survey.findAndCountAll({
+    const survey = await Survey.findAndCountAll({
       where: { [Op.and]: [{ isSurveyPublished: true }, { userId: userId }] },
       limit: limit,
       offset: offset,
     });
+
     if (!survey) {
       throw new Error('Some error occurred while retrieving Surveys');
     }
+
     const response = getPagingData(survey, page, limit);
     return res.status(200).send(response);
   } catch (err) {

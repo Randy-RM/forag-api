@@ -4,45 +4,159 @@ const { getPagination, getPagingData } = require('../utils/pagination');
 
 const { Op } = Sequelize;
 
-// Retrieve all posts from the database.
+/* 
+--------------------------
+Find all surveys,
+and all surveys whose status is published
+or unpublished in database
+--------------------------
+*/
 async function getAllSurveys(req, res, next) {
-  return res.status(200).send({ message: 'All surveys' });
-}
+  const { page, size, published } = req.query;
+  const { limit, offset } = getPagination(page, size);
 
-// Retrieve all posts from the database.
-async function getAllSurveysOfUser(req, res, next) {
-  return res.status(200).send({ message: 'All surveys of user' });
-}
+  try {
+    // Recovers all surveys under certain conditions
+    let survey = false;
 
-// Find a single post with an id
-async function getOneSurveyById(req, res, next) {
-  return res.status(200).send({ message: 'One survey by Id' });
-}
+    if (+published === 1 || +published === 0) {
+      survey = await Survey.findAndCountAll({
+        where: { isSurveyPublished: +published },
+        limit: limit,
+        offset: offset,
+      });
+    } else {
+      survey = await Survey.findAndCountAll({
+        limit: limit,
+        offset: offset,
+      });
+    }
 
-// Find all published posts
-async function findAllPublishedSurveys(req, res, next) {
-  return res.status(200).send({ message: 'All published surveys' });
+    if (!survey) {
+      throw new Error('Some error occurred while retrieving Surveys');
+    }
+
+    const response = getPagingData(survey, page, limit);
+    return res.status(200).send(response);
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
+    });
+  }
 }
 
 /* 
 --------------------------
-Find all published survey
+Find a single surveys with an id 
 in the database
 --------------------------
 */
-async function findAllUserPublishedSurveys(req, res, next) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  }
+async function getOneSurveyById(req, res, next) {
+  const { surveyId } = req.params;
 
-  const { page, size } = req.query;
-  const { userId } = req.params;
+  try {
+    const survey = await Survey.findByPk(surveyId);
+
+    if (!survey) {
+      return res.status(404).send({
+        message: `Cannot find survey with id = ${surveyId}.`,
+      });
+    }
+    return res.status(200).send(survey);
+  } catch (err) {
+    return res.status(500).send({
+      message: `Error retrieving survey with id = ${surveyId}`,
+    });
+  }
+}
+
+/* 
+--------------------------
+Find all the surveys 
+created by a user in the database
+--------------------------
+*/
+async function getAllUserSurveys(req, res, next) {
+  const { page, size, published } = req.query;
+  const { userId } = req.params || req.body;
   const { limit, offset } = getPagination(page, size);
 
   try {
+    // Recovers all surveys under certain conditions
     const survey = await Survey.findAndCountAll({
-      where: { [Op.and]: [{ isSurveyPublished: true }, { userId: userId }] },
+      where:
+        userId && published && (+published === 0 || +published === 1)
+          ? { [Op.and]: [{ isSurveyPublished: +published }, { userId: userId }] }
+          : { userId: userId },
+      limit: limit,
+      offset: offset,
+    });
+
+    if (!survey) {
+      throw new Error('Some error occurred while retrieving Surveys');
+    }
+
+    const response = getPagingData(survey, page, limit);
+    return res.status(200).send(response);
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
+    });
+  }
+}
+
+/* 
+--------------------------
+Find all the surveys 
+whose status is published 
+and created by a user in the database
+--------------------------
+*/
+async function getAllUserSurveysPublished(req, res, next) {
+  const { page, size } = req.query;
+  const { userId } = req.params || req.body;
+  const { limit, offset } = getPagination(page, size);
+
+  try {
+    // Recovers all surveys under certain conditions
+    let survey = false;
+
+    if (userId) {
+      survey = await Survey.findAndCountAll({
+        where: { [Op.and]: [{ isSurveyPublished: true }, { userId: userId }] },
+        limit: limit,
+        offset: offset,
+      });
+    }
+
+    if (!survey) {
+      throw new Error('Some error occurred while retrieving Surveys');
+    }
+
+    const response = getPagingData(survey, page, limit);
+    return res.status(200).send(response);
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
+    });
+  }
+}
+
+/* 
+--------------------------
+Find all the surveys 
+whose status is published 
+in database
+--------------------------
+*/
+async function getAllSurveysPublished(req, res, next) {
+  const { page, size } = req.query;
+  const { limit, offset } = getPagination(page, size);
+
+  try {
+    // Recovers all surveys under certain conditions
+    const survey = await Survey.findAndCountAll({
+      where: { isSurveyPublished: true },
       limit: limit,
       offset: offset,
     });
@@ -243,10 +357,10 @@ async function deleteAllSurveysOfUser(req, res, next) {
 
 module.exports = {
   getAllSurveys,
-  getAllSurveysOfUser,
   getOneSurveyById,
-  findAllPublishedSurveys,
-  findAllUserPublishedSurveys,
+  getAllUserSurveys,
+  getAllUserSurveysPublished,
+  getAllSurveysPublished,
   createSurvey,
   updateSurvey,
   deleteSurvey,

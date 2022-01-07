@@ -4,20 +4,30 @@ const surveyController = require('../controllers/surveyController');
 
 const surveyRouter = express.Router();
 
-surveyRouter.get('/', surveyController.getAllSurveys);
-
-surveyRouter.get('/user/:userId', surveyController.getAllSurveysOfUser);
-
-surveyRouter.get('/:surveyId', surveyController.getOneSurveyById);
-
-surveyRouter.get('/published', surveyController.findAllPublishedSurveys);
-
+// Get all surveys
 surveyRouter.get(
-  '/user/:userId/published',
-  [authJwt.verifyToken, authJwt.isUser, authJwt.verifyPermissionToAccessResource],
-  surveyController.findAllUserPublishedSurveys
+  '/',
+  [authJwt.verifyToken, authJwt.isAdmin, authJwt.verifyPermission],
+  surveyController.getAllSurveys
 );
 
+// Get all surveys published
+surveyRouter.get('/published', surveyController.getAllSurveysPublished);
+
+// Get one survey by id
+surveyRouter.get('/:surveyId', surveyController.getOneSurveyById);
+
+// Get all user surveys, published surveys and unpublished
+surveyRouter.get(
+  '/user/:userId',
+  [authJwt.verifyToken, authJwt.isUser, authJwt.verifyPermission],
+  surveyController.getAllUserSurveys
+);
+
+// Get all user published surveys
+surveyRouter.get('/published/user/:userId', surveyController.getAllUserSurveysPublished);
+
+// Create new survey
 surveyRouter.post(
   '/',
   [
@@ -29,20 +39,24 @@ surveyRouter.post(
   surveyController.createSurvey
 );
 
+// Update survey by id
 surveyRouter.put(
   '/:surveyId',
-  [authJwt.verifyToken, authJwt.isUser],
+  [authJwt.verifyToken, authJwt.isUser, authJwt.verifyPermission],
   surveyController.updateSurvey
 );
 
+// Delete all surveys
+surveyRouter.delete('/', [authJwt.verifyToken, authJwt.isAdmin], surveyController.deleteAllSurveys);
+
+// Delete survey by id
 surveyRouter.delete(
   '/:surveyId',
   [authJwt.verifyToken, authJwt.isUser],
   surveyController.deleteSurvey
 );
 
-surveyRouter.delete('/', [authJwt.verifyToken, authJwt.isAdmin], surveyController.deleteAllSurveys);
-
+// Delete all surveys of user
 surveyRouter.delete(
   '/user/:userId',
   [authJwt.verifyToken, authJwt.isUser],

@@ -55,7 +55,19 @@ async function getOneSurveyById(req, res, next) {
   const { surveyId } = req.params;
 
   try {
-    const survey = await Survey.findByPk(surveyId);
+    const survey = await Survey.findOne({
+      where: { id: surveyId },
+      include: [
+        {
+          model: Subject,
+          include: [
+            {
+              model: Answer,
+            },
+          ],
+        },
+      ],
+    });
 
     if (!survey) {
       return res.status(404).send({
@@ -225,7 +237,7 @@ async function createSurvey(req, res, next) {
         links each answers in array to subject 
         and records in database
         */
-        if (curentSubject.answers && curentSubject.answers.length) {
+        if (curentSubject.answers && curentSubject.answers.length > 0) {
           for (const curentAnswer of curentSubject.answers) {
             const answer = await Answer.create(
               {
@@ -299,7 +311,7 @@ async function updateSurvey(req, res, next) {
         and updates in database each answer according to
         subject.
         */
-        if (curentSubject.answers && curentSubject.answers.length) {
+        if (curentSubject.answers && curentSubject.answers.length > 0) {
           for (const curentAnswer of curentSubject.answers) {
             const answer = await Answer.update(curentAnswer, {
               where: { id: curentAnswer.answerId },

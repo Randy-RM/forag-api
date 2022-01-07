@@ -1,8 +1,7 @@
-const express = require('express');
+const surveyRouter = require('express').Router();
+
 const { authJwt, validateInputSurvey, validateInputSubjectTable } = require('../middlewares/index');
 const surveyController = require('../controllers/surveyController');
-
-const surveyRouter = express.Router();
 
 // Get all surveys
 surveyRouter.get(

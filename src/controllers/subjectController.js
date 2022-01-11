@@ -97,38 +97,22 @@ async function createSubject(req, res, next) {
       throw new Error('Some error occurred while creating subject');
     }
 
-    for (const answer of answers) {
-      newAnswersTab.push({ answerContent: answer.answerContent, subjectId: subject.id });
-    }
-
-    const answer = await Answer.bulkCreate(newAnswersTab, { transaction });
-
-    if (!answer) {
-      throw new Error('Some error occurred while creating answer');
-    }
-
     /* 
     Runs answers array if exist, 
     links each answers in array to subject 
     and records in database
     */
-    /*
     if (answers && answers.length > 0) {
-      for (const curentAnswer of answers) {
-        const answer = await Answer.create(
-          {
-            answerContent: curentAnswer.answerContent,
-            subjectId: subject.id,
-          },
-          { transaction }
-        );
+      for (const answer of answers) {
+        newAnswersTab.push({ answerContent: answer.answerContent, subjectId: subject.id });
+      }
 
-        if (!answer) {
-          throw new Error('Some error occurred while creating answer');
-        }
+      const answer = await Answer.bulkCreate(newAnswersTab, { transaction });
+
+      if (!answer) {
+        throw new Error('Some error occurred while creating answer');
       }
     }
-    */
 
     // Persist entities if transaction is successful
     await transaction.commit().then(() => {
@@ -144,8 +128,58 @@ async function createSubject(req, res, next) {
   }
 }
 
+/* 
+--------------------------
+Update a survey in database 
+with the specified id in the request
+--------------------------
+*/
+async function updateSubject(req, res, next) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
+  const { answers } = req.body;
+  const transaction = await sequelize.transaction();
+
+  try {
+    const subject = await Subject.update(req.body, {
+      where: { id: req.params.subjectId },
+      transaction: transaction,
+    });
+
+    if (subject[0] !== 1) {
+      throw new Error('Some error occurred while updating the subject');
+    }
+    if (answers && answers.length > 0) {
+      for (const answer of answers) {
+        const answerUpdate = await Answer.update(answer, {
+          where: { id: answer.id },
+          transaction: transaction,
+        });
+        if (answerUpdate[0] !== 1) {
+          throw new Error('Some error occurred while creating answer');
+        }
+      }
+    }
+    // Persist entities if transaction is successful
+    await transaction.commit().then(() => {
+      return res.status(201).send({ message: 'Subject was updated successfully!' });
+    });
+  } catch (err) {
+    // Rollback transaction if is not successful
+    await transaction.rollback().then(() => {
+      return res
+        .status(500)
+        .send({ error: err.message || 'Some error occurred while updating the subject' });
+    });
+  }
+}
+
 module.exports = {
   getAllSubjects,
   getOneSubjectById,
   createSubject,
+  updateSubject,
 };

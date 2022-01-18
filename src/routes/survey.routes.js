@@ -1,14 +1,9 @@
 const surveyRouter = require('express').Router();
-
 const { authJwt, validateInputSurvey, validateInputSubjectTable } = require('../middlewares/index');
 const surveyController = require('../controllers/surveyController');
 
 // Get all surveys
-surveyRouter.get(
-  '/',
-  [authJwt.verifyToken, authJwt.isAdmin, authJwt.verifyPermission],
-  surveyController.getAllSurveys
-);
+surveyRouter.get('/', surveyController.getAllSurveys);
 
 // Get all surveys published
 surveyRouter.get('/published', surveyController.getAllSurveysPublished);
@@ -19,7 +14,7 @@ surveyRouter.get('/:surveyId', surveyController.getOneSurveyById);
 // Get all user surveys, published surveys and unpublished
 surveyRouter.get(
   '/user/:userId',
-  [authJwt.verifyToken, authJwt.isUser, authJwt.verifyPermission],
+  [authJwt.verifyToken, authJwt.isUser],
   surveyController.getAllUserSurveys
 );
 
@@ -41,7 +36,7 @@ surveyRouter.post(
 // Update survey by id
 surveyRouter.put(
   '/:surveyId',
-  [authJwt.verifyToken, authJwt.isUser, authJwt.verifyPermission],
+  [authJwt.verifyToken, authJwt.isUser],
   surveyController.updateSurvey
 );
 

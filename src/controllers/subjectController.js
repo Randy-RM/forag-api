@@ -1,14 +1,16 @@
 const { validationResult } = require('express-validator');
 const { Subject, Answer, sequelize } = require('../models');
 const { getPagination, getPagingData } = require('../utils/pagination');
+const { createOrUpdateEntityById } = require('../utils/createOrUpdateEntity');
+const { isItUserSubject, isItUserAnswer } = require('../utils/isItForUser');
 
-/* 
---------------------------
-Find all subject,
-according to survey id 
-in database
---------------------------
-*/
+/**
+ * --------------------------
+ * Find all subject,
+ * according to survey id
+ * in database
+ * --------------------------
+ */
 async function getAllSubjects(req, res, next) {
   const { page, size } = req.query;
   const { limit, offset } = getPagination(page, size);
@@ -35,12 +37,12 @@ async function getAllSubjects(req, res, next) {
   }
 }
 
-/* 
---------------------------
-Find a single subject with an id 
-in the database
---------------------------
-*/
+/**
+ * --------------------------
+ * Find a single subject with an id
+ * in the database
+ * --------------------------
+ */
 async function getOneSubjectById(req, res, next) {
   const { subjectId } = req.params;
 
@@ -67,50 +69,45 @@ async function getOneSubjectById(req, res, next) {
   }
 }
 
-/* 
---------------------------
-Create and save a new subject
-in the database
---------------------------
-*/
+/**
+ * --------------------------
+ * Create and save a new subject
+ * in the database
+ * --------------------------
+ */
 async function createSubject(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });
   }
 
-  const { subjectContent, answers, surveyId } = req.body;
+  const { answers, surveyId } = req.body;
   const transaction = await sequelize.transaction();
-  const newAnswersTab = [];
 
   try {
     // Create a subject and save it in database
-    const subject = await Subject.create(
-      {
-        subjectContent: subjectContent,
-        surveyId: surveyId,
-      },
-      { transaction }
+    const subject = await createOrUpdateEntityById(
+      Subject,
+      null,
+      req.body,
+      { surveyId: surveyId },
+      transaction
     );
 
-    if (!subject) {
-      throw new Error('Some error occurred while creating subject');
-    }
+    if (!subject.data) throw new Error('Some error occurred while creating subject');
 
-    /* 
-    Runs answers array if exist, 
-    links each answers in array to subject 
-    and records in database
-    */
+    // Runs answers array if exist, links each answers in array to subject and records in database
     if (answers && answers.length > 0) {
       for (const answer of answers) {
-        newAnswersTab.push({ answerContent: answer.answerContent, subjectId: subject.id });
-      }
+        const curentAnswer = await createOrUpdateEntityById(
+          Answer,
+          null,
+          answer,
+          { subjectId: subject.data.id },
+          transaction
+        );
 
-      const answer = await Answer.bulkCreate(newAnswersTab, { transaction });
-
-      if (!answer) {
-        throw new Error('Some error occurred while creating answer');
+        if (!curentAnswer.data) throw new Error('Some error occurred while creating answer');
       }
     }
 
@@ -128,12 +125,12 @@ async function createSubject(req, res, next) {
   }
 }
 
-/* 
---------------------------
-Update a survey in database 
-with the specified id in the request
---------------------------
-*/
+/**
+ * --------------------------
+ * Update a subject in database
+ * with the specified id in the request
+ * --------------------------
+ */
 async function updateSubject(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -144,23 +141,39 @@ async function updateSubject(req, res, next) {
   const transaction = await sequelize.transaction();
 
   try {
-    const subject = await Subject.update(req.body, {
-      where: { id: req.params.subjectId },
-      transaction: transaction,
-    });
-
-    if (subject[0] !== 1) {
-      throw new Error('Some error occurred while updating the subject');
+    if (!(await isItUserSubject(req.userId, req.params.subjectId))) {
+      return res.status(403).send({
+        message: 'No permission to access the resource.',
+      });
     }
+
+    const subject = await createOrUpdateEntityById(
+      Subject,
+      req.params.subjectId,
+      req.body,
+      {},
+      transaction
+    );
+
+    if (!subject.data) throw new Error('Some error occurred while updating the subject');
+
     if (answers && answers.length > 0) {
       for (const answer of answers) {
-        const answerUpdate = await Answer.update(answer, {
-          where: { id: answer.id },
-          transaction: transaction,
-        });
-        if (answerUpdate[0] !== 1) {
-          throw new Error('Some error occurred while creating answer');
+        if (!(await isItUserAnswer(req.userId, answer.answerId))) {
+          return res.status(403).send({
+            message: 'No permission to access the resource.',
+          });
         }
+
+        const curentAnswer = await createOrUpdateEntityById(
+          Answer,
+          answer.answerId,
+          answer,
+          { subjectId: subject.data.id },
+          transaction
+        );
+
+        if (!curentAnswer.data) throw new Error('Some error occurred while creating answer');
       }
     }
     // Persist entities if transaction is successful

@@ -1,56 +1,56 @@
 const { validationResult } = require('express-validator');
 const { Survey, Subject, Answer, sequelize, Sequelize } = require('../models');
 const { getPagination, getPagingData } = require('../utils/pagination');
+const { createOrUpdateEntityById } = require('../utils/createOrUpdateEntity');
+const { isItUserSurvey, isItUserSubject, isItUserAnswer } = require('../utils/isItForUser');
 
 const { Op } = Sequelize;
 
-/* 
---------------------------
-Find all surveys,
-and all surveys whose status is published
-or unpublished in database
---------------------------
-*/
+/**
+ * --------------------------
+ * Find all surveys,
+ * and all surveys whose status is published
+ * or unpublished in database
+ * --------------------------
+ */
 async function getAllSurveys(req, res, next) {
   const { page, size, published } = req.query;
   const { limit, offset } = getPagination(page, size);
 
   try {
     // Recovers all surveys under certain conditions
-    let survey = false;
+    let surveys = false;
 
     if (+published === 1 || +published === 0) {
-      survey = await Survey.findAndCountAll({
+      surveys = await Survey.findAndCountAll({
         where: { isSurveyPublished: +published },
         limit: limit,
         offset: offset,
       });
     } else {
-      survey = await Survey.findAndCountAll({
+      surveys = await Survey.findAndCountAll({
         limit: limit,
         offset: offset,
       });
     }
 
-    if (!survey) {
-      throw new Error('Some error occurred while retrieving Surveys');
-    }
+    if (!surveys) return res.status(404).send({ message: 'Cannot find surveys' });
 
-    const response = getPagingData(survey, page, limit);
+    const response = getPagingData(surveys, page, limit);
     return res.status(200).send(response);
   } catch (err) {
     return res.status(500).send({
-      message: err.message,
+      message: err.message || 'Some error occurred while retrieving Surveys',
     });
   }
 }
 
-/* 
---------------------------
-Find a single surveys with an id 
-in the database
---------------------------
-*/
+/**
+ * --------------------------
+ * Find a single surveys with an id
+ * in the database
+ * --------------------------
+ */
 async function getOneSurveyById(req, res, next) {
   const { surveyId } = req.params;
 
@@ -69,25 +69,23 @@ async function getOneSurveyById(req, res, next) {
       ],
     });
 
-    if (!survey) {
-      return res.status(404).send({
-        message: `Cannot find survey with id = ${surveyId}.`,
-      });
-    }
+    if (!survey)
+      return res.status(404).send({ message: `Cannot find survey with id = ${surveyId}.` });
+
     return res.status(200).send(survey);
   } catch (err) {
     return res.status(500).send({
-      message: `Error retrieving survey with id = ${surveyId}`,
+      error: err.message || 'Some error occurred while retrieving survey',
     });
   }
 }
 
-/* 
---------------------------
-Find all the surveys 
-created by a user in the database
---------------------------
-*/
+/**
+ * --------------------------
+ * Find all the surveys
+ * created by a user in the database
+ * --------------------------
+ */
 async function getAllUserSurveys(req, res, next) {
   const { page, size, published } = req.query;
   const { userId } = req.params || req.body;
@@ -95,35 +93,43 @@ async function getAllUserSurveys(req, res, next) {
 
   try {
     // Recovers all surveys under certain conditions
-    const survey = await Survey.findAndCountAll({
+    const surveys = await Survey.findAndCountAll({
       where:
         userId && published && (+published === 0 || +published === 1)
           ? { [Op.and]: [{ isSurveyPublished: +published }, { userId: userId }] }
           : { userId: userId },
+      include: [
+        {
+          model: Subject,
+          include: [
+            {
+              model: Answer,
+            },
+          ],
+        },
+      ],
       limit: limit,
       offset: offset,
     });
 
-    if (!survey) {
-      throw new Error('Some error occurred while retrieving Surveys');
-    }
+    if (!surveys) return res.status(404).send({ message: 'Cannot find surveys' });
 
-    const response = getPagingData(survey, page, limit);
+    const response = getPagingData(surveys, page, limit);
     return res.status(200).send(response);
   } catch (err) {
     return res.status(500).send({
-      message: err.message,
+      error: err.message || 'Some error occurred while retrieving surveys',
     });
   }
 }
 
-/* 
---------------------------
-Find all the surveys 
-whose status is published 
-and created by a user in the database
---------------------------
-*/
+/**
+ * --------------------------
+ * Find all the surveys
+ * whose status is published
+ * and created by a user in the database
+ * --------------------------
+ */
 async function getAllUserSurveysPublished(req, res, next) {
   const { page, size } = req.query;
   const { userId } = req.params || req.body;
@@ -131,124 +137,129 @@ async function getAllUserSurveysPublished(req, res, next) {
 
   try {
     // Recovers all surveys under certain conditions
-    let survey = false;
+    let surveys = false;
 
     if (userId) {
-      survey = await Survey.findAndCountAll({
+      surveys = await Survey.findAndCountAll({
         where: { [Op.and]: [{ isSurveyPublished: true }, { userId: userId }] },
+        include: [
+          {
+            model: Subject,
+            include: [
+              {
+                model: Answer,
+              },
+            ],
+          },
+        ],
         limit: limit,
         offset: offset,
       });
     }
 
-    if (!survey) {
-      throw new Error('Some error occurred while retrieving Surveys');
-    }
+    if (!surveys) return res.status(404).send({ message: 'Cannot find surveys' });
 
-    const response = getPagingData(survey, page, limit);
+    const response = getPagingData(surveys, page, limit);
     return res.status(200).send(response);
   } catch (err) {
     return res.status(500).send({
-      message: err.message,
+      error: err.message || 'Some error occurred while retrieving surveys',
     });
   }
 }
 
-/* 
---------------------------
-Find all the surveys 
-whose status is published 
-in database
---------------------------
-*/
+/**
+ * --------------------------
+ * Find all the surveys
+ * whose status is published
+ * in database
+ * --------------------------
+ */
 async function getAllSurveysPublished(req, res, next) {
   const { page, size } = req.query;
   const { limit, offset } = getPagination(page, size);
 
   try {
     // Recovers all surveys under certain conditions
-    const survey = await Survey.findAndCountAll({
+    const surveys = await Survey.findAndCountAll({
       where: { isSurveyPublished: true },
+      include: [
+        {
+          model: Subject,
+          include: [
+            {
+              model: Answer,
+            },
+          ],
+        },
+      ],
       limit: limit,
       offset: offset,
     });
 
-    if (!survey) {
-      throw new Error('Some error occurred while retrieving Surveys');
-    }
+    if (!surveys) return res.status(404).send({ message: 'Cannot find surveys' });
 
-    const response = getPagingData(survey, page, limit);
+    const response = getPagingData(surveys, page, limit);
     return res.status(200).send(response);
   } catch (err) {
     return res.status(500).send({
-      message: err.message,
+      error: err.message || 'Some error occurred while retrieving surveys',
     });
   }
 }
 
-/* 
---------------------------
-Create and save a new survey
-in the database
---------------------------
-*/
+/**
+ * --------------------------
+ * Create and save a new survey
+ * in the database
+ * --------------------------
+ */
 async function createSurvey(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });
   }
 
+  const { subjects } = req.body;
   const transaction = await sequelize.transaction();
 
   try {
     // Create a survey and save it in database
-    const survey = await Survey.create(
-      {
-        surveyTitle: req.body.surveyTitle,
-        userId: req.body.userId,
-        isSurveyPublished: req.body.isSurveyPublished ? req.body.isSurveyPublished : false,
-      },
-      { transaction }
+    const survey = await createOrUpdateEntityById(
+      Survey,
+      null,
+      req.body,
+      { userId: req.userId },
+      transaction
     );
 
-    if (!survey) {
-      throw new Error('Some error occurred while creating the Survey');
-    }
+    if (!survey.data) throw new Error('Some error occurred while creating the Survey');
 
-    /* 
-    Runs subjects array if exist, 
-    links each subjects in array to survey 
-    and records in database
-    */
-    if (req.body.subjects && req.body.subjects.length > 0) {
-      for (const curentSubject of req.body.subjects) {
-        const subject = await Subject.create(
-          {
-            subjectContent: curentSubject.subjectContent,
-            surveyId: survey.id,
-          },
-          { transaction }
+    // Runs subjects array if exist, links each subjects in array to survey and records in database
+    if (subjects && subjects.length > 0) {
+      for (const subject of subjects) {
+        // Create a subject and save it in database
+        const curentSubject = await createOrUpdateEntityById(
+          Subject,
+          null,
+          subject,
+          { surveyId: survey.data.id },
+          transaction
         );
-        if (!subject) {
-          throw new Error('Some error occurred while creating subject');
-        }
-        /* 
-        Runs answers array if exist, 
-        links each answers in array to subject 
-        and records in database
-        */
-        if (curentSubject.answers && curentSubject.answers.length > 0) {
-          for (const curentAnswer of curentSubject.answers) {
-            const answer = await Answer.create(
-              {
-                answerContent: curentAnswer.answerContent,
-                subjectId: subject.id,
-              },
-              { transaction }
+
+        if (!curentSubject.data) throw new Error('Some error occurred while creating subject');
+
+        if (subject.answers && subject.answers.length > 0) {
+          for (const answer of subject.answers) {
+            const curentAnswer = await createOrUpdateEntityById(
+              Answer,
+              null,
+              answer,
+              { subjectId: curentSubject.data.id },
+              transaction
             );
-            if (!answer) {
-              throw new Error('Some error occurred while creating answer');
-            }
+
+            if (!curentAnswer.data) throw new Error('Some error occurred while creating answer');
           }
         }
       }
@@ -268,58 +279,77 @@ async function createSurvey(req, res, next) {
   }
 }
 
-/* 
---------------------------
-Update a survey in database 
-with the specified id in the request
---------------------------
-*/
+/**
+ * --------------------------
+ * Update a survey in database
+ * with the specified id in the request
+ * --------------------------
+ */
 async function updateSurvey(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });
   }
 
+  const { subjects } = req.body;
   const transaction = await sequelize.transaction();
 
   try {
-    const survey = await Survey.update(req.body, {
-      where: { id: req.params.surveyId },
-      transaction: transaction,
-    });
-
-    if (survey[0] !== 1) {
-      throw new Error('Some error occurred while updating the Survey');
+    if (!(await isItUserSurvey(req.userId, req.params.surveyId))) {
+      return res.status(403).send({
+        message: 'No permission to access the resource.',
+      });
     }
 
-    /* 
-    Runs subjects array if exist, 
-    and updates in database each subject according to
-    survey.
-    */
-    if (req.body.subjects && req.body.subjects.length > 0) {
-      for (const curentSubject of req.body.subjects) {
-        const subject = await Subject.update(curentSubject, {
-          where: { id: curentSubject.subjectId },
-          transaction: transaction,
-        });
-        if (subject[0] !== 1) {
-          throw new Error('Some error occurred while creating subject');
+    const survey = await createOrUpdateEntityById(
+      Survey,
+      req.params.surveyId,
+      req.body,
+      {},
+      transaction
+    );
+
+    if (!survey.data) throw new Error('Some error occurred while updating the Survey');
+
+    // Runs subjects array if exist, and updates in database each subject according to survey.
+    if (subjects && subjects.length > 0) {
+      for (const subject of subjects) {
+        const { answers } = subject;
+
+        if (!(await isItUserSubject(req.userId, subject.subjectId))) {
+          return res.status(403).send({
+            message: 'No permission to access the resource.',
+          });
         }
-        /* 
-        Runs answers array if exist, 
-        and updates in database each answer according to
-        subject.
-        */
-        if (curentSubject.answers && curentSubject.answers.length > 0) {
-          for (const curentAnswer of curentSubject.answers) {
-            const answer = await Answer.update(curentAnswer, {
-              where: { id: curentAnswer.answerId },
-              transaction: transaction,
-            });
-            if (answer[0] !== 1) {
-              throw new Error('Some error occurred while creating answer');
+
+        const curentSubject = await createOrUpdateEntityById(
+          Subject,
+          subject.subjectId,
+          subject,
+          { surveyId: survey.data.id },
+          transaction
+        );
+
+        if (!curentSubject.data) throw new Error('Some error occurred while creating subject');
+
+        // Runs answers array if exist, and updates in database each answer according to subject.
+        if (answers && answers.length > 0) {
+          for (const answer of answers) {
+            if (!(await isItUserAnswer(req.userId, answer.answerId))) {
+              return res.status(403).send({
+                message: 'No permission to access the resource.',
+              });
             }
+
+            const curentAnswer = await createOrUpdateEntityById(
+              Answer,
+              answer.answerId,
+              answer,
+              { subjectId: subject.data.id },
+              transaction
+            );
+
+            if (!curentAnswer.data) throw new Error('Some error occurred while creating answer');
           }
         }
       }
@@ -339,30 +369,30 @@ async function updateSurvey(req, res, next) {
   }
 }
 
-/* 
---------------------------
-Delete a survey in database 
-with the specified id in the request
---------------------------
-*/
+/**
+ * --------------------------
+ * Delete a survey in database
+ * with the specified id in the request
+ * --------------------------
+ */
 async function deleteSurvey(req, res, next) {
   return res.status(200).send({ message: 'Delete survey' });
 }
 
-/* 
---------------------------
-Delete all surveys from the database.
---------------------------
-*/
+/**
+ * --------------------------
+ * Delete all surveys from the database.
+ * --------------------------
+ */
 async function deleteAllSurveys(req, res, next) {
   return res.status(200).send({ message: 'Delete all surveys' });
 }
 
-/* 
---------------------------
-Delete all surveys from the database.
---------------------------
-*/
+/**
+ * --------------------------
+ * Delete all surveys from the database.
+ * --------------------------
+ */
 async function deleteAllSurveysOfUser(req, res, next) {
   return res.status(200).send({ message: 'Delete all surveys of user' });
 }

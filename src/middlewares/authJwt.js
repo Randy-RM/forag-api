@@ -30,30 +30,6 @@ function verifyToken(req, res, next) {
 
 /*
 --------------------------
-checks whether or not 
-the access rights allow 
-the client to access the resource.
---------------------------
-*/
-function verifyPermission(req, res, next) {
-  const token = req.headers['x-access-token'];
-
-  const decoded = jwt.verify(token, jwtConfig.secret);
-  const userIdToken = decoded.id;
-
-  if (
-    (req.params.userId && userIdToken !== +req.params.userId) ||
-    (req.body.userId && userIdToken !== +req.body.userId)
-  ) {
-    return res.status(403).send({
-      message: 'No permission to access the resource.',
-    });
-  }
-  next();
-}
-
-/*
---------------------------
 Check the client rights
 --------------------------
 */
@@ -134,7 +110,6 @@ async function isUser(req, res, next) {
 
 module.exports = {
   verifyToken,
-  verifyPermission,
   isAdmin,
   isOrganization,
   isUser,

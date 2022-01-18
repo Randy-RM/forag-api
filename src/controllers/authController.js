@@ -4,12 +4,12 @@ const bcrypt = require('bcryptjs');
 const { User, Role, UserRole, Adresse, sequelize } = require('../models');
 const authConfig = require('../config/authConfig');
 
-/*
---------------------------
-Create and save a new user
-in the database
---------------------------
-*/
+/**
+ * --------------------------
+ * Create and save a new user
+ * in the database
+ * --------------------------
+ */
 async function signup(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -79,12 +79,12 @@ async function signup(req, res, next) {
   }
 }
 
-/*
---------------------------
-Signin if user have an account 
-and roles 
---------------------------
-*/
+/**
+ * --------------------------
+ * Signin if user have an account
+ * and roles.
+ * --------------------------
+ */
 async function signin(req, res, next) {
   const user = await User.findOne({
     where: {
@@ -135,11 +135,11 @@ async function signin(req, res, next) {
   }
 }
 
-/*
---------------------------
-Logout user 
---------------------------
-*/
+/**
+ * --------------------------
+ * Logout user.
+ * --------------------------
+ */
 async function logout(req, res, next) {
   const { userId } = req.body;
   const token = jwt.sign({ id: userId }, authConfig.secret, {

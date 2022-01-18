@@ -2,12 +2,12 @@ const jwt = require('jsonwebtoken');
 const jwtConfig = require('../config/authConfig');
 const { User, Role, UserRole } = require('../models');
 
-/*
---------------------------
-Verify if token exist or
-if client is authorized
---------------------------
-*/
+/**
+ * --------------------------
+ * Verify if token exist or
+ * if client is authorized
+ * --------------------------
+ */
 function verifyToken(req, res, next) {
   const token = req.headers['x-access-token'];
 
@@ -28,11 +28,11 @@ function verifyToken(req, res, next) {
   });
 }
 
-/*
---------------------------
-Check the client rights
---------------------------
-*/
+/**
+ * --------------------------
+ * Check the client rights
+ * --------------------------
+ */
 async function isUserRights(userId, userType) {
   if (userType === 'user' || 'organization' || 'admin') {
     return false;
@@ -57,12 +57,12 @@ async function isUserRights(userId, userType) {
   return false;
 }
 
-/*
---------------------------
-Check if the client has 
-administrator rights
---------------------------
-*/
+/**
+ * --------------------------
+ * Check if the client has
+ * administrator rights
+ * --------------------------
+ */
 async function isAdmin(req, res, next) {
   const user = await User.findByPk(req.userId);
   if (isUserRights(user.id, 'admin')) {
@@ -74,12 +74,12 @@ async function isAdmin(req, res, next) {
   }
 }
 
-/*
---------------------------
-Check if the client has 
-organization rights
---------------------------
-*/
+/**
+ * --------------------------
+ * Check if the client has
+ * organization rights
+ * --------------------------
+ */
 async function isOrganization(req, res, next) {
   const user = await User.findByPk(req.userId);
   if (isUserRights(user.id, 'organization')) {
@@ -91,12 +91,12 @@ async function isOrganization(req, res, next) {
   }
 }
 
-/*
---------------------------
-Check if the client has 
-user rights
---------------------------
-*/
+/**
+ * --------------------------
+ * Check if the client has
+ * user rights
+ * --------------------------
+ */
 async function isUser(req, res, next) {
   const user = await User.findByPk(req.userId);
   if (isUserRights(user.id, 'user')) {

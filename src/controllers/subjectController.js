@@ -7,7 +7,7 @@ const { isItUserSubject, isItUserAnswer } = require('../utils/isItForUser');
 /**
  * --------------------------
  * Find all subject,
- * in database
+ * in database.
  * --------------------------
  */
 async function getAllSubjects(req, res, next) {
@@ -43,7 +43,7 @@ async function getAllSubjects(req, res, next) {
  * --------------------------
  * Find all subject,
  * according to survey id
- * in database
+ * in database.
  * --------------------------
  */
 async function getAllSurveySubjects(req, res, next) {
@@ -80,7 +80,7 @@ async function getAllSurveySubjects(req, res, next) {
 /**
  * --------------------------
  * Find a single subject with an id
- * in the database
+ * in the database.
  * --------------------------
  */
 async function getOneSubjectById(req, res, next) {
@@ -112,7 +112,7 @@ async function getOneSubjectById(req, res, next) {
 /**
  * --------------------------
  * Create and save a new subject
- * in the database
+ * in the database.
  * --------------------------
  */
 async function createSubject(req, res, next) {
@@ -168,7 +168,7 @@ async function createSubject(req, res, next) {
 /**
  * --------------------------
  * Update a subject in database
- * with the specified id in the request
+ * with the specified id in the request.
  * --------------------------
  */
 async function updateSubject(req, res, next) {

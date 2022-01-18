@@ -4,6 +4,7 @@ const authController = require('../controllers/authController');
 
 const authRouter = express.Router();
 
+// Create and save a new user account.
 authRouter.post(
   '/signup',
   [
@@ -15,8 +16,10 @@ authRouter.post(
   authController.signup
 );
 
+// Signin if user have an account.
 authRouter.post('/signin', authController.signin);
 
+// Logout user.
 authRouter.post('/logout', authController.logout);
 
 module.exports = authRouter;

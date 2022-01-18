@@ -2,26 +2,26 @@ const surveyRouter = require('express').Router();
 const { authJwt, validateInputSurvey, validateInputSubjectTable } = require('../middlewares/index');
 const surveyController = require('../controllers/surveyController');
 
-// Get all surveys
+// Get all surveys.
 surveyRouter.get('/', surveyController.getAllSurveys);
 
-// Get all surveys published
+// Get all surveys published.
 surveyRouter.get('/published', surveyController.getAllSurveysPublished);
 
-// Get one survey by id
+// Get one survey by id.
 surveyRouter.get('/:surveyId', surveyController.getOneSurveyById);
 
-// Get all user surveys, published surveys and unpublished
+// Get all user surveys, published surveys or unpublished.
 surveyRouter.get(
   '/user/:userId',
   [authJwt.verifyToken, authJwt.isUser],
   surveyController.getAllUserSurveys
 );
 
-// Get all user published surveys
+// Get all user published surveys.
 surveyRouter.get('/published/user/:userId', surveyController.getAllUserSurveysPublished);
 
-// Create new survey
+// Create new survey.
 surveyRouter.post(
   '/',
   [
@@ -33,24 +33,24 @@ surveyRouter.post(
   surveyController.createSurvey
 );
 
-// Update survey by id
+// Update survey by id.
 surveyRouter.put(
   '/:surveyId',
   [authJwt.verifyToken, authJwt.isUser],
   surveyController.updateSurvey
 );
 
-// Delete all surveys
+// Delete all surveys.
 surveyRouter.delete('/', [authJwt.verifyToken, authJwt.isAdmin], surveyController.deleteAllSurveys);
 
-// Delete survey by id
+// Delete survey by id.
 surveyRouter.delete(
   '/:surveyId',
   [authJwt.verifyToken, authJwt.isUser],
   surveyController.deleteSurvey
 );
 
-// Delete all surveys of user
+// Delete all surveys of user.
 surveyRouter.delete(
   '/user/:userId',
   [authJwt.verifyToken, authJwt.isUser],

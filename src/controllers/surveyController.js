@@ -10,7 +10,7 @@ const { Op } = Sequelize;
  * --------------------------
  * Find all surveys,
  * and all surveys whose status is published
- * or unpublished in database
+ * or unpublished in database.
  * --------------------------
  */
 async function getAllSurveys(req, res, next) {
@@ -48,7 +48,7 @@ async function getAllSurveys(req, res, next) {
 /**
  * --------------------------
  * Find a single surveys with an id
- * in the database
+ * in the database.
  * --------------------------
  */
 async function getOneSurveyById(req, res, next) {
@@ -83,7 +83,7 @@ async function getOneSurveyById(req, res, next) {
 /**
  * --------------------------
  * Find all the surveys
- * created by a user in the database
+ * created by a user in the database.
  * --------------------------
  */
 async function getAllUserSurveys(req, res, next) {
@@ -127,7 +127,7 @@ async function getAllUserSurveys(req, res, next) {
  * --------------------------
  * Find all the surveys
  * whose status is published
- * and created by a user in the database
+ * and created by a user in the database.
  * --------------------------
  */
 async function getAllUserSurveysPublished(req, res, next) {
@@ -172,7 +172,7 @@ async function getAllUserSurveysPublished(req, res, next) {
  * --------------------------
  * Find all the surveys
  * whose status is published
- * in database
+ * in database.
  * --------------------------
  */
 async function getAllSurveysPublished(req, res, next) {
@@ -211,7 +211,7 @@ async function getAllSurveysPublished(req, res, next) {
 /**
  * --------------------------
  * Create and save a new survey
- * in the database
+ * in the database.
  * --------------------------
  */
 async function createSurvey(req, res, next) {
@@ -282,7 +282,7 @@ async function createSurvey(req, res, next) {
 /**
  * --------------------------
  * Update a survey in database
- * with the specified id in the request
+ * with the specified id in the request.
  * --------------------------
  */
 async function updateSurvey(req, res, next) {
@@ -372,7 +372,7 @@ async function updateSurvey(req, res, next) {
 /**
  * --------------------------
  * Delete a survey in database
- * with the specified id in the request
+ * with the specified id in the request.
  * --------------------------
  */
 async function deleteSurvey(req, res, next) {

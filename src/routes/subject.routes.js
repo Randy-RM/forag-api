@@ -11,10 +11,10 @@ subjectRouter.get('/:surveyId', subjectController.getAllSurveySubjects);
 // Get one subject by id.
 subjectRouter.get('/:subjectId', subjectController.getOneSubjectById);
 
-// Create new survey.
+// Create new subject.
 subjectRouter.post('/', [authJwt.verifyToken, authJwt.isUser], subjectController.createSubject);
 
-// Update survey by id.
+// Update subject by id.
 subjectRouter.put(
   '/:subjectId',
   [authJwt.verifyToken, authJwt.isUser],

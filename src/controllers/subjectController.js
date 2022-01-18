@@ -7,11 +7,46 @@ const { isItUserSubject, isItUserAnswer } = require('../utils/isItForUser');
 /**
  * --------------------------
  * Find all subject,
- * according to survey id
  * in database
  * --------------------------
  */
 async function getAllSubjects(req, res, next) {
+  const { page, size } = req.query;
+  const { limit, offset } = getPagination(page, size);
+
+  try {
+    // Recovers all subjects under certain conditions
+    const subject = await Subject.findAndCountAll({
+      include: [
+        {
+          model: Answer,
+        },
+      ],
+      limit: limit,
+      offset: offset,
+    });
+
+    if (!subject) {
+      throw new Error('Some error occurred while retrieving subjects');
+    }
+
+    const response = getPagingData(subject, page, limit);
+    return res.status(200).send(response);
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
+    });
+  }
+}
+
+/**
+ * --------------------------
+ * Find all subject,
+ * according to survey id
+ * in database
+ * --------------------------
+ */
+async function getAllSurveySubjects(req, res, next) {
   const { page, size } = req.query;
   const { limit, offset } = getPagination(page, size);
   const { surveyId } = req.params;
@@ -20,6 +55,11 @@ async function getAllSubjects(req, res, next) {
     // Recovers all subjects under certain conditions
     const subject = await Subject.findAndCountAll({
       where: { surveyId: +surveyId },
+      include: [
+        {
+          model: Answer,
+        },
+      ],
       limit: limit,
       offset: offset,
     });
@@ -192,6 +232,7 @@ async function updateSubject(req, res, next) {
 
 module.exports = {
   getAllSubjects,
+  getAllSurveySubjects,
   getOneSubjectById,
   createSubject,
   updateSubject,

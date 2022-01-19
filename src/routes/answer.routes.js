@@ -6,7 +6,7 @@ const answerController = require('../controllers/answerController');
 answerRouter.get('/', answerController.getAllAnswers);
 
 // Get all answers according to subjectId.
-answerRouter.get('/:subjectId', answerController.getAllSubjectAnswers);
+answerRouter.get('/subject/:subjectId', answerController.getAllSubjectAnswers);
 
 // Get one answer by id.
 answerRouter.get('/:answerId', answerController.getOneAnswerById);

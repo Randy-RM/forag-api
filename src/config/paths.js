@@ -4,6 +4,7 @@ const paths = {
   surveyBaseURI: '/api/survey',
   subjectBaseURI: '/api/subject',
   answerBaseURI: '/api/answer',
+  participationBaseURI: '/api/participation',
 };
 
 module.exports = paths;

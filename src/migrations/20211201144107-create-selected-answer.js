@@ -7,13 +7,13 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      choiceId: {
+      participationSubjectId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Choices',
+          model: 'ParticipationSubjects',
           key: 'id',
-          as: 'choiceId',
+          as: 'participationSubjectId',
         },
       },
       answerId: {

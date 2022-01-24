@@ -9,8 +9,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      SelectedAnswer.belongsTo(models.Choice, {
-        foreignKey: 'choiceId',
+      SelectedAnswer.belongsTo(models.ParticipationSubject, {
+        foreignKey: 'participationSubjectId',
       });
       SelectedAnswer.belongsTo(models.Answer, {
         foreignKey: 'answerId',
@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   SelectedAnswer.init(
     {
-      choiceId: DataTypes.INTEGER,
+      participationSubjectId: DataTypes.INTEGER,
       answerId: DataTypes.INTEGER,
     },
     {

@@ -1,6 +1,11 @@
 const participationRouter = require('express').Router();
+const { authJwt } = require('../middlewares/index');
 const participationController = require('../controllers/participationController');
 
-participationRouter.post('/', participationController.selectAnswer);
+participationRouter.post(
+  '/',
+  [authJwt.verifyToken, authJwt.isUser],
+  participationController.selectAnswer
+);
 
 module.exports = participationRouter;

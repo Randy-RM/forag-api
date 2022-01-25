@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator');
 const {
+  User,
   Participation,
   ParticipationSubject,
   SelectedAnswer,
@@ -199,23 +200,126 @@ async function selectAnswer(req, res, next) {
  * to a survey.
  * --------------------------
  */
-async function getParticipationsSurvey(req, res, next) {
+async function getAllParticipationsSurvey(req, res, next) {
   const { page, size } = req.query;
   const { limit, offset } = getPagination(page, size);
 
   try {
     // Recovers all participations under certain conditions
-    const subject = await Participation.findAndCountAll({
+    const participation = await Participation.findAndCountAll({
       where: { surveyId: req.params.surveyId },
+      include: [
+        {
+          model: User,
+          attributes: ['username', 'email'],
+        },
+      ],
       limit: limit,
       offset: offset,
     });
 
-    if (!subject) {
+    if (!participation) {
       throw new Error('Some error occurred while retrieving participations');
     }
 
-    const response = getPagingData(subject, page, limit);
+    const response = getPagingData(participation, page, limit);
+    return res.status(200).send(response);
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
+    });
+  }
+}
+
+/**
+ * --------------------------
+ * Get participation according
+ * to subject related to survey.
+ * --------------------------
+ */
+async function getAllParticipationsSubject(req, res, next) {
+  const { page, size } = req.query;
+  const { limit, offset } = getPagination(page, size);
+
+  try {
+    // Recovers all participations under certain conditions
+    const participationSubject = await ParticipationSubject.findAndCountAll({
+      where: {
+        [Op.and]: {
+          subjectId: req.params.subjectId,
+        },
+      },
+      include: [
+        {
+          model: Participation,
+          include: [
+            {
+              model: User,
+              attributes: ['username', 'email'],
+            },
+          ],
+        },
+      ],
+      limit: limit,
+      offset: offset,
+    });
+
+    if (!participationSubject) {
+      throw new Error('Some error occurred while retrieving participations to subject');
+    }
+
+    const response = getPagingData(participationSubject, page, limit);
+    return res.status(200).send(response);
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
+    });
+  }
+}
+
+/**
+ * --------------------------
+ * Get participation according
+ * to subject related to survey.
+ * --------------------------
+ */
+async function getAllSelectedAnswerByIdAnswer(req, res, next) {
+  const { page, size } = req.query;
+  const { limit, offset } = getPagination(page, size);
+
+  try {
+    // Recovers all participations under certain conditions
+    const selectedAnswer = await SelectedAnswer.findAndCountAll({
+      where: {
+        [Op.and]: {
+          answerId: req.params.answerId,
+        },
+      },
+      include: [
+        {
+          model: ParticipationSubject,
+          include: [
+            {
+              model: Participation,
+              include: [
+                {
+                  model: User,
+                  attributes: ['username', 'email'],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      limit: limit,
+      offset: offset,
+    });
+
+    if (!selectedAnswer) {
+      throw new Error('Some error occurred while retrieving participations to subject');
+    }
+
+    const response = getPagingData(selectedAnswer, page, limit);
     return res.status(200).send(response);
   } catch (err) {
     return res.status(500).send({
@@ -226,5 +330,7 @@ async function getParticipationsSurvey(req, res, next) {
 
 module.exports = {
   selectAnswer,
-  getParticipationsSurvey,
+  getAllParticipationsSurvey,
+  getAllParticipationsSubject,
+  getAllSelectedAnswerByIdAnswer,
 };

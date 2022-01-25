@@ -6,6 +6,7 @@ const {
   sequelize,
   Sequelize,
 } = require('../models');
+const { getPagination, getPagingData } = require('../utils/pagination');
 const { createOrUpdateEntityById } = require('../utils/createOrUpdateEntity');
 
 const { Op } = Sequelize;
@@ -69,8 +70,6 @@ async function updateSelectedAnswer(participationData, transaction) {
       where: { [Op.and]: { participationId: participationId, subjectId: subjectId } },
     });
 
-    console.log(participationSubjectExist);
-
     if (participationSubjectExist) {
       if (!selectedAnswerId)
         throw new Error(
@@ -117,7 +116,6 @@ async function updateSelectedAnswer(participationData, transaction) {
 
     if (!participationSubject.data) throw new Error('An error occurred during the selection');
 
-    console.log(answerId);
     const selectedAnswer = await createOrUpdateEntityById(
       SelectedAnswer,
       null,
@@ -125,7 +123,6 @@ async function updateSelectedAnswer(participationData, transaction) {
       {},
       transaction
     );
-    console.log(selectedAnswer.data);
 
     if (!selectedAnswer.data) throw new Error('An error occurred during the selection');
 
@@ -196,6 +193,38 @@ async function selectAnswer(req, res, next) {
   }
 }
 
+/**
+ * --------------------------
+ * Get participation according
+ * to a survey.
+ * --------------------------
+ */
+async function getParticipationsSurvey(req, res, next) {
+  const { page, size } = req.query;
+  const { limit, offset } = getPagination(page, size);
+
+  try {
+    // Recovers all participations under certain conditions
+    const subject = await Participation.findAndCountAll({
+      where: { surveyId: req.params.surveyId },
+      limit: limit,
+      offset: offset,
+    });
+
+    if (!subject) {
+      throw new Error('Some error occurred while retrieving participations');
+    }
+
+    const response = getPagingData(subject, page, limit);
+    return res.status(200).send(response);
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
+    });
+  }
+}
+
 module.exports = {
   selectAnswer,
+  getParticipationsSurvey,
 };
